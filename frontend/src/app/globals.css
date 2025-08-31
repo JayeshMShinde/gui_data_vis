@@ -112,6 +112,37 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Color Palette Variables */
+[data-color-palette="blue"] {
+  --primary: oklch(0.646 0.222 264.376);
+  --primary-foreground: oklch(0.985 0 0);
+}
+
+[data-color-palette="purple"] {
+  --primary: oklch(0.627 0.265 303.9);
+  --primary-foreground: oklch(0.985 0 0);
+}
+
+[data-color-palette="green"] {
+  --primary: oklch(0.696 0.17 162.48);
+  --primary-foreground: oklch(0.985 0 0);
+}
+
+[data-color-palette="orange"] {
+  --primary: oklch(0.769 0.188 70.08);
+  --primary-foreground: oklch(0.985 0 0);
+}
+
+[data-color-palette="red"] {
+  --primary: oklch(0.645 0.246 16.439);
+  --primary-foreground: oklch(0.985 0 0);
+}
+
+[data-color-palette="pink"] {
+  --primary: oklch(0.704 0.191 22.216);
+  --primary-foreground: oklch(0.985 0 0);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

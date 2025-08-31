@@ -21,6 +21,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(data.router, prefix="/api/v1/data", tags=["Data"])
-app.include_router(visualization.router, prefix="/api/v1/charts", tags=["Visualization"])
-app.include_router(ml.router, prefix="/api/v1/0ml", tags=["Machine Learning"])
+app.include_router(data.router, prefix="/api/data", tags=["Data"])
+app.include_router(visualization.router, prefix="/api/charts", tags=["Visualization"])
+app.include_router(ml.router, prefix="/api/ml", tags=["Machine Learning"])
+
+# Import and include reports router
+from routers import reports
+app.include_router(reports.router, prefix="/api/reports", tags=["Reports"])

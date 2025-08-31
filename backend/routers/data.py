@@ -1,10 +1,12 @@
 import io
 import pandas as pd
+import uuid
 
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from typing import Optional, List, Literal
+from typing import Optional, List, Literal, Dict, Any
+from services.data_processing import data_processor
 
 router = APIRouter()
 
@@ -20,63 +22,90 @@ async def upload_file(file: UploadFile = File(...)):
         else:
             raise HTTPException(status_code=400, detail="Unsupported file type.")
 
-        # Store the dataframe in memory or session (for now, just return columns and shape)
+        # Generate session ID and store dataframe
+        session_id = str(uuid.uuid4())
+        data_processor.store_dataframe(session_id, df)
+        
+        preview_data = df.head(10).fillna("").to_dict(orient="records")
+        
         return JSONResponse({
+            "session_id": session_id,
             "columns": df.columns.tolist(),
-            "shape": df.shape,
-            "preview": df.head(10).to_dict(orient="records")
+            "shape": list(df.shape),
+            "preview": preview_data,
+            "data_info": data_processor.get_data_info(session_id)
         })
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
-
 class CleanRequest(BaseModel):
+    session_id: str
     action: Literal[
-        "drop_duplicates", "drop_columns", "fillna", "convert_type"
+        "drop_duplicates", "drop_columns", "drop_rows", "handle_missing", "convert_types", "detect_outliers"
     ]
     columns: Optional[List[str]] = None
-    strategy: Optional[str] = None  # e.g. "mean", "median", "mode", "zero", "ffill", "bfill"
-    dtype: Optional[str] = None     # for convert_type
-
-# Keep dataset in memory (later we’ll use DB / session storage)
-session_df = {}
+    indices: Optional[List[int]] = None  # for drop_rows
+    strategy: Optional[str] = None  # for handle_missing
+    column_types: Optional[Dict[str, str]] = None  # for convert_types
+    outlier_method: Optional[str] = "iqr"  # for detect_outliers
 
 @router.post("/clean")
 async def clean_data(request: CleanRequest):
-    global session_df
+    try:
+        if request.action == "drop_duplicates":
+            df = data_processor.drop_duplicates(request.session_id)
+        elif request.action == "drop_columns" and request.columns:
+            df = data_processor.drop_columns(request.session_id, request.columns)
+        elif request.action == "drop_rows" and request.indices:
+            df = data_processor.drop_rows(request.session_id, request.indices)
+        elif request.action == "handle_missing" and request.strategy:
+            df = data_processor.handle_missing_values(request.session_id, request.strategy, request.columns)
+        elif request.action == "convert_types" and request.column_types:
+            df = data_processor.convert_data_types(request.session_id, request.column_types)
+        elif request.action == "detect_outliers" and request.columns:
+            outliers = {}
+            for col in request.columns:
+                outliers[col] = data_processor.detect_outliers(request.session_id, col, request.outlier_method or "iqr")
+            return {"outliers": outliers}
+        else:
+            raise HTTPException(status_code=400, detail="Invalid action or missing parameters")
 
-    if "data" not in session_df:
-        raise HTTPException(status_code=400, detail="No dataset uploaded")
+        preview_data = df.head(50).fillna("").to_dict(orient="records")
+        
+        return {
+            "columns": df.columns.tolist(),
+            "shape": list(df.shape),
+            "preview": preview_data,
+            "data_info": data_processor.get_data_info(request.session_id)
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-    df = session_df["data"]
+@router.get("/info/{session_id}")
+async def get_data_info(session_id: str):
+    try:
+        info = data_processor.get_data_info(session_id)
+        if not info:
+            raise HTTPException(status_code=404, detail="Session not found")
+        return info
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-    if request.action == "drop_duplicates":
-        df = df.drop_duplicates()
-    elif request.action == "drop_columns" and request.columns:
-        df = df.drop(columns=request.columns)
-    elif request.action == "fillna":
-        if request.strategy == "mean":
-            df = df.fillna(df.mean(numeric_only=True))
-        elif request.strategy == "median":
-            df = df.fillna(df.median(numeric_only=True))
-        elif request.strategy == "mode":
-            df = df.fillna(df.mode().iloc[0])
-        elif request.strategy == "zero":
-            df = df.fillna(0)
-        elif request.strategy in ("ffill", "bfill"):
-            df = df.fillna(method=request.strategy)
-    elif request.action == "convert_type" and request.columns and request.dtype:
-        for col in request.columns:
-            try:
-                df[col] = df[col].astype(request.dtype)
-            except Exception:
-                pass
-
-    # Save back into memory
-    session_df["data"] = df
-
-    return {
-        "columns": df.columns.tolist(),
-        "preview": df.head(50).to_dict(orient="records"),
-    }
+@router.get("/preview/{session_id}")
+async def get_data_preview(session_id: str, limit: int = 50):
+    try:
+        df = data_processor.get_dataframe(session_id)
+        if df is None:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        preview_data = df.head(limit).fillna("").to_dict(orient="records")
+        
+        return {
+            "columns": df.columns.tolist(),
+            "shape": list(df.shape),
+            "preview": preview_data
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

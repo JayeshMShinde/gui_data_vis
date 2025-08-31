@@ -1,0 +1,161 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import ChartGenerator from "@/components/charts/ChartGenerator";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ArrowLeft, BarChart3 } from "lucide-react";
+import { getDataInfo } from "@/lib/api";
+
+interface DataInfo {
+  shape: [number, number];
+  columns: string[];
+  dtypes: Record<string, string>;
+  missing_values: Record<string, number>;
+  numeric_columns: string[];
+  categorical_columns: string[];
+}
+
+export default function VisualizePage() {
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get("session");
+  const [dataInfo, setDataInfo] = useState<DataInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (sessionId) {
+      fetchDataInfo();
+    }
+  }, [sessionId]);
+
+  const fetchDataInfo = async () => {
+    try {
+      const info = await getDataInfo(sessionId!);
+      setDataInfo(info);
+    } catch (error) {
+      console.error("Failed to fetch data info:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!sessionId) {
+    return (
+      <div className="max-w-4xl mx-auto py-8">
+        <Card>
+          <CardContent className="text-center py-8">
+            <h2 className="text-xl font-semibold mb-4">No Data Session Found</h2>
+            <p className="text-muted-foreground mb-4">
+              Please upload data first to create visualizations.
+            </p>
+            <Link href="/data">
+              <Button>Upload Data</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto py-8">
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span className="ml-2">Loading data information...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!dataInfo) {
+    return (
+      <div className="max-w-4xl mx-auto py-8">
+        <Card>
+          <CardContent className="text-center py-8">
+            <h2 className="text-xl font-semibold mb-4">Data Session Not Found</h2>
+            <p className="text-muted-foreground mb-4">
+              The data session may have expired or is invalid.
+            </p>
+            <Link href="/data">
+              <Button>Upload New Data</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <DashboardLayout>
+      <div className="p-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+            <BarChart3 className="h-8 w-8" />
+            Data Visualization
+          </h1>
+          <p className="text-lg text-gray-600">
+            Create stunning visualizations from your data • {dataInfo.shape[0]} rows × {dataInfo.shape[1]} columns
+          </p>
+        </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Data Summary Sidebar */}
+        <div className="lg:col-span-1">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Dataset Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h4 className="font-medium text-sm mb-2">Numeric Columns ({dataInfo.numeric_columns.length})</h4>
+                <div className="space-y-1">
+                  {dataInfo.numeric_columns.slice(0, 5).map((col) => (
+                    <div key={col} className="text-xs text-muted-foreground truncate">
+                      {col}
+                    </div>
+                  ))}
+                  {dataInfo.numeric_columns.length > 5 && (
+                    <div className="text-xs text-muted-foreground">
+                      +{dataInfo.numeric_columns.length - 5} more
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-sm mb-2">Categorical Columns ({dataInfo.categorical_columns.length})</h4>
+                <div className="space-y-1">
+                  {dataInfo.categorical_columns.slice(0, 5).map((col) => (
+                    <div key={col} className="text-xs text-muted-foreground truncate">
+                      {col}
+                    </div>
+                  ))}
+                  {dataInfo.categorical_columns.length > 5 && (
+                    <div className="text-xs text-muted-foreground">
+                      +{dataInfo.categorical_columns.length - 5} more
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Chart Generator */}
+        <div className="lg:col-span-3">
+          <ChartGenerator
+            sessionId={sessionId}
+            columns={dataInfo.columns}
+            numericColumns={dataInfo.numeric_columns}
+            categoricalColumns={dataInfo.categorical_columns}
+          />
+        </div>
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+}
