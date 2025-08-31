@@ -2,6 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import data, visualization, ml
 
+# Initialize database
+try:
+    from database.models import Base, engine
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"Database initialization warning: {e}")
+
 app = FastAPI(
     title="Data Visualization & ML API",
     description="Backend for full-stack data visualization and machine learning app.",
@@ -28,3 +35,7 @@ app.include_router(ml.router, prefix="/api/ml", tags=["Machine Learning"])
 # Import and include reports router
 from routers import reports
 app.include_router(reports.router, prefix="/api/reports", tags=["Reports"])
+
+# Import and include sessions router
+from routers import sessions
+app.include_router(sessions.router, prefix="/api/sessions", tags=["Sessions"])

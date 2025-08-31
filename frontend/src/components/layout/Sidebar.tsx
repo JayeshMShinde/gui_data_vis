@@ -14,16 +14,16 @@ import {
 } from "lucide-react";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: Home },
-  { name: "Data Management", href: "/data", icon: Database },
-  { name: "Visualizations", href: "/visualize", icon: BarChart3 },
-  { name: "Machine Learning", href: "/ml", icon: Brain },
-  { name: "Reports", href: "/reports", icon: FileText },
+  { name: "Dashboard", href: "/", icon: Home, requiresSession: false },
+  { name: "Data Management", href: "/data", icon: Database, requiresSession: false },
+  { name: "Visualizations", href: "/visualize", icon: BarChart3, requiresSession: true },
+  { name: "Machine Learning", href: "/ml", icon: Brain, requiresSession: true },
+  { name: "Reports", href: "/reports", icon: FileText, requiresSession: false },
+  { name: "Saved Sessions", href: "/sessions", icon: Database, requiresSession: false },
 ];
 
 const secondaryNavigation = [
   { name: "Settings", href: "/settings", icon: Settings },
-  { name: "Help", href: "/help", icon: HelpCircle },
 ];
 
 export default function Sidebar() {

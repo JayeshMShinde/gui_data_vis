@@ -22,7 +22,7 @@ import {
   Info
 } from "lucide-react";
 
-type ReportType = "data_summary" | "data_quality" | "statistical_analysis";
+type ReportType = "data_summary" | "data_quality" | "statistical_analysis" | "visualization_recommendations";
 
 interface ReportData {
   report_type: string;
@@ -51,6 +51,13 @@ const reportTypes = [
     description: "Detailed statistical insights and correlations",
     icon: TrendingUp,
     color: "from-purple-500 to-purple-600"
+  },
+  {
+    value: "visualization_recommendations",
+    label: "Visualization Recommendations",
+    description: "Smart chart suggestions and visualization insights",
+    icon: BarChart3,
+    color: "from-orange-500 to-orange-600"
   }
 ];
 
@@ -171,6 +178,85 @@ export default function ReportsPage() {
     </div>
   );
 
+  const renderVisualizationReport = (data: ReportData) => (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5" />
+            Visualization Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-orange-600">{data.summary.total_recommendations}</div>
+              <div className="text-sm text-gray-600">Chart Recommendations</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">{data.summary.chart_types_suggested}</div>
+              <div className="text-sm text-gray-600">Chart Types</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">{data.summary.insights_generated}</div>
+              <div className="text-sm text-gray-600">Data Insights</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Recommended Charts</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {data.chart_recommendations.map((rec: any, index: number) => (
+              <div key={index} className="p-4 border rounded-lg dark:border-gray-600">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className={`px-2 py-1 rounded text-xs font-medium ${
+                    rec.chart_type === 'bar' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                    rec.chart_type === 'scatter' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                    rec.chart_type === 'histogram' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' :
+                    rec.chart_type === 'pie' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' :
+                    'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                  }`}>
+                    {rec.chart_type.toUpperCase()}
+                  </div>
+                </div>
+                <h4 className="font-medium text-gray-900 dark:text-white mb-1">{rec.title}</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">{rec.reason}</p>
+                {rec.x_column && (
+                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    X: {rec.x_column} {rec.y_column && `• Y: ${rec.y_column}`}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {data.data_insights && data.data_insights.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Data Insights</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {data.data_insights.map((insight: string, index: number) => (
+                <li key={index} className="flex items-start gap-2">
+                  <Info className="h-4 w-4 text-blue-500 mt-0.5" />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{insight}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+
   return (
     <DashboardLayout>
       <div className="p-8">
@@ -271,6 +357,7 @@ export default function ReportsPage() {
               {reportData.report_type === "data_summary" && renderDataSummaryReport(reportData)}
               {reportData.report_type === "data_quality" && renderDataQualityReport(reportData)}
               {reportData.report_type === "statistical_analysis" && renderStatisticalReport(reportData)}
+              {reportData.report_type === "visualization_recommendations" && renderVisualizationReport(reportData)}
             </CardContent>
           </Card>
         )}

@@ -93,8 +93,27 @@ export async function applyPCA(payload: {
 // Generate report
 export async function generateReport(payload: {
   session_id: string;
-  report_type: "data_summary" | "data_quality" | "statistical_analysis";
+  report_type: "data_summary" | "data_quality" | "statistical_analysis" | "visualization_recommendations";
 }) {
   const res = await api.post("/reports/generate", payload);
+  return res.data;
+}
+
+// Session management
+export async function getAllSessions() {
+  const res = await api.get("/sessions");
+  return res.data;
+}
+
+export async function saveSession(payload: {
+  session_id: string;
+  name: string;
+}) {
+  const res = await api.post("/sessions/save", payload);
+  return res.data;
+}
+
+export async function deleteSession(sessionId: string) {
+  const res = await api.delete(`/sessions/${sessionId}`);
   return res.data;
 }

@@ -9,9 +9,10 @@ import DataCleaningControls from "@/components/ui/DataCleaningControls";
 import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 import { cleanData } from "@/lib/api";
+import { useSession } from "@/contexts/SessionContext";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { BarChart3, Brain, Upload } from "lucide-react";
+import { BarChart3, Brain, Upload, FileText, Copy } from "lucide-react";
 
 type CleaningAction = "drop_duplicates" | "drop_columns" | "drop_rows" | "handle_missing" | "convert_types" | "detect_outliers";
 
@@ -66,6 +67,7 @@ const renderCellValue = (value: unknown): string => {
 
 export default function DataUploadPage() {
   const [preview, setPreview] = useState<PreviewData | null>(null);
+  const { setCurrentSessionId } = useSession();
   const queryClient = useQueryClient();
 
   // Mutation for data cleaning operations
@@ -81,7 +83,9 @@ export default function DataUploadPage() {
       if (data.outliers) {
         // Handle outlier detection results
         const outlierCount = Object.values(data.outliers).reduce((sum: number, indices: any) => sum + indices.length, 0);
-        toast.success(`Found ${outlierCount} outliers across selected columns`);
+        toast.success(`Found ${outlierCount} outliers`, {
+          description: "Check console for detailed outlier information"
+        });
         console.log("Outliers detected:", data.outliers);
       } else {
         // Update preview with cleaned data
@@ -92,11 +96,15 @@ export default function DataUploadPage() {
           shape: data.shape,
           data_info: data.data_info
         } : null);
-        toast.success("Data cleaning operation completed successfully");
+        toast.success("Data cleaned successfully!", {
+          description: "Your dataset has been updated with the cleaning operation"
+        });
       }
     },
     onError: (error) => {
-      toast.error(`Cleaning failed: ${error.message}`);
+      toast.error("Data cleaning failed", {
+        description: error.message
+      });
     }
   });
 
@@ -110,6 +118,11 @@ export default function DataUploadPage() {
         shape: data.shape,
         session_id: data.session_id,
         data_info: data.data_info
+      });
+      // Update session context
+      setCurrentSessionId(data.session_id);
+      toast.success("Data uploaded successfully!", {
+        description: "You can now visualize and analyze your data"
       });
     }
   };
@@ -152,19 +165,53 @@ export default function DataUploadPage() {
                   <div className="text-sm text-muted-foreground">
                     {preview.shape[0]} rows × {preview.shape[1]} columns
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <Link href={`/visualize?session=${preview.session_id}`}>
-                      <Button size="sm">
+                      <Button size="sm" className="dark:bg-blue-600 dark:hover:bg-blue-700">
                         <BarChart3 className="h-4 w-4 mr-2" />
                         Visualize
                       </Button>
                     </Link>
                     <Link href={`/ml?session=${preview.session_id}`}>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
                         <Brain className="h-4 w-4 mr-2" />
                         ML
                       </Button>
                     </Link>
+                    <Link href={`/reports?session=${preview.session_id}`}>
+                      <Button size="sm" variant="outline" className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                        <FileText className="h-4 w-4 mr-2" />
+                        Reports
+                      </Button>
+                    </Link>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={async () => {
+                        try {
+                          if (navigator.clipboard && navigator.clipboard.writeText) {
+                            await navigator.clipboard.writeText(preview.session_id);
+                          } else {
+                            // Fallback for older browsers
+                            const textArea = document.createElement('textarea');
+                            textArea.value = preview.session_id;
+                            document.body.appendChild(textArea);
+                            textArea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textArea);
+                          }
+                          toast.success("Session ID copied!", {
+                            description: "You can use this ID to generate reports later"
+                          });
+                        } catch (error) {
+                          toast.error("Failed to copy session ID");
+                        }
+                      }}
+                      className="dark:text-gray-400 dark:hover:bg-gray-700"
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copy ID
+                    </Button>
                   </div>
                 </div>
               </div>

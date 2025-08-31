@@ -7,7 +7,7 @@ router = APIRouter()
 
 class ReportRequest(BaseModel):
     session_id: str
-    report_type: Literal["data_summary", "data_quality", "statistical_analysis"]
+    report_type: Literal["data_summary", "data_quality", "statistical_analysis", "visualization_recommendations"]
 
 @router.post("/generate")
 async def generate_report(request: ReportRequest):
@@ -18,6 +18,8 @@ async def generate_report(request: ReportRequest):
             report = report_generator.generate_data_quality_report(request.session_id)
         elif request.report_type == "statistical_analysis":
             report = report_generator.generate_statistical_report(request.session_id)
+        elif request.report_type == "visualization_recommendations":
+            report = report_generator.generate_visualization_report(request.session_id)
         else:
             raise HTTPException(status_code=400, detail="Invalid report type")
         

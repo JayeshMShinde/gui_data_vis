@@ -7,7 +7,8 @@ import ChartGenerator from "@/components/charts/ChartGenerator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft, BarChart3 } from "lucide-react";
+import { ArrowLeft, BarChart3, Brain, FileText, Copy } from "lucide-react";
+import { toast } from "sonner";
 import { getDataInfo } from "@/lib/api";
 
 interface DataInfo {
@@ -93,13 +94,52 @@ export default function VisualizePage() {
     <DashboardLayout>
       <div className="p-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-3">
             <BarChart3 className="h-8 w-8" />
             Data Visualization
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-gray-600 dark:text-gray-300">
             Create stunning visualizations from your data • {dataInfo.shape[0]} rows × {dataInfo.shape[1]} columns
           </p>
+          <div className="mt-4 flex gap-2">
+            <Link href={`/ml?session=${sessionId}`}>
+              <Button variant="outline" size="sm" className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                <Brain className="h-4 w-4 mr-2" />
+                Continue to ML
+              </Button>
+            </Link>
+            <Link href={`/reports?session=${sessionId}`}>
+              <Button variant="outline" size="sm" className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                <FileText className="h-4 w-4 mr-2" />
+                Generate Reports
+              </Button>
+            </Link>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={async () => {
+                try {
+                  if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(sessionId!);
+                  } else {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = sessionId!;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                  }
+                  toast.success("Session ID copied!");
+                } catch (error) {
+                  toast.error("Failed to copy session ID");
+                }
+              }}
+              className="dark:text-gray-400 dark:hover:bg-gray-700"
+            >
+              <Copy className="h-4 w-4 mr-2" />
+              Copy Session ID
+            </Button>
+          </div>
         </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
