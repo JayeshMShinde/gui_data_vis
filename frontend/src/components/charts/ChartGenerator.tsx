@@ -1,15 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { BarChart3, ScatterChart, TrendingUp, BarChart2, PieChart, Box, Grid3X3 } from "lucide-react";
-import { generateChart } from "@/lib/api";
+import { BarChart3, ScatterChart, TrendingUp, BarChart2, PieChart, Box, Grid3X3, Lightbulb, Star } from "lucide-react";
+import { generateChart, getVisualizationRecommendations } from "@/lib/api";
 
 type ChartType = "bar" | "scatter" | "line" | "histogram" | "pie" | "box" | "heatmap";
 
@@ -54,6 +54,13 @@ export default function ChartGenerator({
     title: ""
   });
   const [generatedChart, setGeneratedChart] = useState<string | null>(null);
+  const [showRecommendations, setShowRecommendations] = useState<boolean>(false);
+
+  const { data: recommendations } = useQuery({
+    queryKey: ["viz-recommendations", sessionId],
+    queryFn: () => getVisualizationRecommendations(sessionId),
+    enabled: showRecommendations
+  });
 
   const generateChartMutation = useMutation({
     mutationFn: async (chartConfig: ChartConfig) => {
@@ -91,6 +98,133 @@ export default function ChartGenerator({
 
   return (
     <div className="space-y-6">
+      {/* Recommendations */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Lightbulb className="h-5 w-5" />
+            Smart Recommendations
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowRecommendations(!showRecommendations)}
+            className="mb-4"
+          >
+            {showRecommendations ? "Hide" : "Show"} Column Recommendations
+          </Button>
+          
+          {showRecommendations && recommendations && (
+            <div className="space-y-4">
+              {/* Chart Combinations */}
+              {recommendations.chart_combinations?.length > 0 && (
+                <div>
+                  <h4 className="font-medium text-sm mb-2 flex items-center gap-1">
+                    <Star className="h-4 w-4 text-yellow-500" />
+                    Recommended Chart Combinations
+                  </h4>
+                  <div className="space-y-2">
+                    {recommendations.chart_combinations.map((rec: any, idx: number) => (
+                      <div key={idx} className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium capitalize">{rec.chart_type} Chart</span>
+                            <span className="text-xs px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded">
+                              {rec.x_column} × {rec.y_column}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">{rec.reason}</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setConfig({
+                              ...config,
+                              chart_type: rec.chart_type,
+                              x_column: rec.x_column,
+                              y_column: rec.y_column,
+                              title: rec.reason
+                            });
+                          }}
+                          className="h-7 text-xs"
+                        >
+                          Apply
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* X-Axis Recommendations */}
+              {recommendations.x_axis_recommendations?.length > 0 && (
+                <div>
+                  <h4 className="font-medium text-sm mb-2">Best X-Axis Columns</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {recommendations.x_axis_recommendations.slice(0, 6).map((rec: any, idx: number) => (
+                      <Button
+                        key={idx}
+                        size="sm"
+                        variant={config.x_column === rec.column ? "default" : "outline"}
+                        onClick={() => setConfig({...config, x_column: rec.column})}
+                        className="h-7 text-xs"
+                        title={rec.reason}
+                      >
+                        {rec.column}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Y-Axis Recommendations */}
+              {recommendations.y_axis_recommendations?.length > 0 && (
+                <div>
+                  <h4 className="font-medium text-sm mb-2">Best Y-Axis Columns</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {recommendations.y_axis_recommendations.slice(0, 6).map((rec: any, idx: number) => (
+                      <Button
+                        key={idx}
+                        size="sm"
+                        variant={config.y_column === rec.column ? "default" : "outline"}
+                        onClick={() => setConfig({...config, y_column: rec.column})}
+                        className="h-7 text-xs"
+                        title={rec.reason}
+                      >
+                        {rec.column}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Color Recommendations */}
+              {recommendations.color_recommendations?.length > 0 && (
+                <div>
+                  <h4 className="font-medium text-sm mb-2">Best Color Coding Columns</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {recommendations.color_recommendations.slice(0, 4).map((rec: any, idx: number) => (
+                      <Button
+                        key={idx}
+                        size="sm"
+                        variant={config.color_column === rec.column ? "default" : "outline"}
+                        onClick={() => setConfig({...config, color_column: rec.column})}
+                        className="h-7 text-xs"
+                        title={rec.reason}
+                      >
+                        {rec.column}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Chart Configuration */}
       <Card>
         <CardHeader>

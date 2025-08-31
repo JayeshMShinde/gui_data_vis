@@ -39,3 +39,7 @@ app.include_router(reports.router, prefix="/api/reports", tags=["Reports"])
 # Import and include sessions router
 from routers import sessions
 app.include_router(sessions.router, prefix="/api/sessions", tags=["Sessions"])
+
+# Import and include recommendations router
+from routers import recommendations
+app.include_router(recommendations.router, prefix="/api/recommendations", tags=["Recommendations"])

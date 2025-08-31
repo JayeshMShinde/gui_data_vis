@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,8 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { Brain, Target, Layers, Zap } from "lucide-react";
-import { trainModel, trainClustering, applyPCA } from "@/lib/api";
+import { Brain, Target, Layers, Zap, Lightbulb, Star } from "lucide-react";
+import { trainModel, trainClustering, applyPCA, getMLRecommendations } from "@/lib/api";
 
 type MLType = "supervised" | "clustering" | "pca";
 type ModelType = "linear" | "random_forest" | "svm" | "knn" | "decision_tree";
@@ -41,6 +41,13 @@ export default function MLTraining({ sessionId, columns, numericColumns }: MLTra
   const [nComponents, setNComponents] = useState<number>(2);
   const [testSize, setTestSize] = useState<number>(0.2);
   const [result, setResult] = useState<MLResult | null>(null);
+  const [showRecommendations, setShowRecommendations] = useState<boolean>(false);
+
+  const { data: recommendations } = useQuery({
+    queryKey: ["ml-recommendations", sessionId],
+    queryFn: () => getMLRecommendations(sessionId),
+    enabled: showRecommendations
+  });
 
   const trainModelMutation = useMutation({
     mutationFn: async () => {
@@ -346,6 +353,112 @@ export default function MLTraining({ sessionId, columns, numericColumns }: MLTra
           >
             {trainModelMutation.isPending ? "Training..." : "Train Model"}
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* Recommendations */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <Lightbulb className="h-4 w-4" />
+            Smart Recommendations
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowRecommendations(!showRecommendations)}
+            className="mb-4"
+          >
+            {showRecommendations ? "Hide" : "Show"} Recommendations
+          </Button>
+          
+          {showRecommendations && recommendations && (
+            <div className="space-y-4">
+              {/* Target Recommendations */}
+              {mlType === "supervised" && recommendations.target_recommendations?.length > 0 && (
+                <div>
+                  <h4 className="font-medium text-sm mb-2 flex items-center gap-1">
+                    <Target className="h-4 w-4" />
+                    Recommended Target Columns
+                  </h4>
+                  <div className="space-y-2">
+                    {recommendations.target_recommendations.slice(0, 3).map((rec: any, idx: number) => (
+                      <div key={idx} className="flex items-center justify-between p-2 bg-blue-50 dark:bg-blue-900/20 rounded text-sm">
+                        <div className="flex items-center gap-2">
+                          <Star className="h-3 w-3 text-yellow-500" />
+                          <span className="font-medium">{rec.column}</span>
+                          <span className="text-xs px-1 py-0.5 bg-blue-200 dark:bg-blue-800 rounded">
+                            {rec.type}
+                          </span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setTargetColumn(rec.column)}
+                          className="h-6 text-xs"
+                        >
+                          Use
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Feature Recommendations */}
+              {recommendations.feature_recommendations?.length > 0 && (
+                <div>
+                  <h4 className="font-medium text-sm mb-2">Recommended Features</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {recommendations.feature_recommendations.slice(0, 8).map((rec: any, idx: number) => (
+                      <Button
+                        key={idx}
+                        size="sm"
+                        variant={selectedFeatures.includes(rec.column) ? "default" : "outline"}
+                        onClick={() => {
+                          if (selectedFeatures.includes(rec.column)) {
+                            setSelectedFeatures(selectedFeatures.filter(f => f !== rec.column));
+                          } else {
+                            setSelectedFeatures([...selectedFeatures, rec.column]);
+                          }
+                        }}
+                        className="h-7 text-xs"
+                      >
+                        {rec.column}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Model Suggestions */}
+              {recommendations.model_suggestions?.length > 0 && (
+                <div>
+                  <h4 className="font-medium text-sm mb-2">Suggested Models</h4>
+                  <div className="space-y-1">
+                    {recommendations.model_suggestions.map((rec: any, idx: number) => (
+                      <div key={idx} className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/20 rounded text-sm">
+                        <div>
+                          <span className="font-medium capitalize">{rec.model.replace('_', ' ')}</span>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">{rec.reason}</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setModelType(rec.model)}
+                          className="h-6 text-xs"
+                        >
+                          Use
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 

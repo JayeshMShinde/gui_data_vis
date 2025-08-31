@@ -117,3 +117,14 @@ export async function deleteSession(sessionId: string) {
   const res = await api.delete(`/sessions/${sessionId}`);
   return res.data;
 }
+
+// Get recommendations
+export async function getMLRecommendations(sessionId: string) {
+  const res = await api.get(`/recommendations/ml/${sessionId}`);
+  return res.data;
+}
+
+export async function getVisualizationRecommendations(sessionId: string) {
+  const res = await api.get(`/recommendations/visualization/${sessionId}`);
+  return res.data;
+}
