@@ -32,17 +32,20 @@ export default function Sidebar() {
   return (
     <div className="flex h-full w-64 flex-col bg-gradient-to-b from-slate-900 to-slate-800 dark:from-gray-900 dark:to-gray-800 shadow-xl">
       {/* Logo */}
-      <div className="flex h-16 items-center px-6 border-b border-slate-700 dark:border-gray-700">
+      <div className="flex h-20 items-center px-6 border-b border-slate-700 dark:border-gray-700">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-            <BarChart3 className="h-5 w-5 text-white" />
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center shadow-lg">
+            <BarChart3 className="h-6 w-6 text-white" />
           </div>
-          <span className="text-xl font-bold text-white">DataViz Pro</span>
+          <div>
+            <span className="text-xl font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">DataViz Pro</span>
+            <div className="text-xs text-violet-300">AI Analytics</div>
+          </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-2">
+      <nav className="flex-1 px-4 py-6 space-y-1">
         {navigation.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href || 
@@ -53,21 +56,24 @@ export default function Sidebar() {
               key={item.name}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200",
+                "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 group",
                 isActive
-                  ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg"
+                  ? "bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white shadow-lg shadow-violet-500/25"
                   : "text-slate-300 hover:text-white hover:bg-slate-700/50 dark:text-gray-300 dark:hover:bg-gray-700/50"
               )}
             >
-              <Icon className="h-5 w-5" />
-              {item.name}
+              <Icon className={cn(
+                "h-5 w-5 transition-transform duration-200",
+                isActive ? "" : "group-hover:scale-110"
+              )} />
+              <span className="font-medium">{item.name}</span>
             </Link>
           );
         })}
       </nav>
 
       {/* Secondary Navigation */}
-      <div className="border-t border-slate-700 dark:border-gray-700 px-4 py-4 space-y-2">
+      <div className="border-t border-slate-700 dark:border-gray-700 px-4 py-4 space-y-1">
         {secondaryNavigation.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -77,14 +83,14 @@ export default function Sidebar() {
               key={item.name}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200",
+                "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 group",
                 isActive
                   ? "bg-slate-700 text-white dark:bg-gray-700"
                   : "text-slate-400 hover:text-white hover:bg-slate-700/50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700/50"
               )}
             >
-              <Icon className="h-4 w-4" />
-              {item.name}
+              <Icon className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+              <span className="font-medium">{item.name}</span>
             </Link>
           );
         })}

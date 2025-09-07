@@ -24,11 +24,24 @@ async def generate_chart(request: ChartRequest):
         if df is None:
             raise HTTPException(status_code=404, detail="Session not found")
         
+        if df.empty:
+            raise HTTPException(status_code=400, detail="Dataset is empty")
+        
+        # Validate columns exist
+        if request.x_column and request.x_column not in df.columns:
+            raise HTTPException(status_code=400, detail=f"Column '{request.x_column}' not found")
+        if request.y_column and request.y_column not in df.columns:
+            raise HTTPException(status_code=400, detail=f"Column '{request.y_column}' not found")
+        if request.color_column and request.color_column not in df.columns:
+            raise HTTPException(status_code=400, detail=f"Column '{request.color_column}' not found")
+        
         if request.chart_type == "bar":
             if not request.x_column or not request.y_column:
                 raise HTTPException(status_code=400, detail="Bar chart requires x_column and y_column")
+            # Sample data if too large
+            sample_df = df.sample(min(1000, len(df))) if len(df) > 1000 else df
             chart_data = chart_generator.generate_bar_chart(
-                df, request.x_column, request.y_column, request.orientation, request.title
+                sample_df, request.x_column, request.y_column, request.orientation, request.title
             )
         
         elif request.chart_type == "scatter":
@@ -78,5 +91,8 @@ async def generate_chart(request: ChartRequest):
             "title": request.title
         }
     
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Chart generation error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Chart generation failed: {str(e)}")

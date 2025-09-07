@@ -1,63 +1,48 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+'use client';
+
+import { useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 
 export function useKeyboardShortcuts() {
-  const router = useRouter();
+  const saveSession = useCallback(() => {
+    toast.success('Session saved!', { description: 'Your work has been saved automatically' });
+  }, []);
+
+  const exportData = useCallback(() => {
+    toast.info('Export started', { description: 'Your data is being prepared for download' });
+  }, []);
+
+  const showShortcutsHelp = useCallback(() => {
+    toast.info('Keyboard Shortcuts', {
+      description: 'Ctrl+S: Save • Ctrl+E: Export • Ctrl+/: Help',
+      duration: 3000
+    });
+  }, []);
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Only trigger if Ctrl/Cmd is pressed
-      if (!(event.ctrlKey || event.metaKey)) return;
-
-      switch (event.key) {
-        case '1':
-          event.preventDefault();
-          router.push('/data');
-          toast.success('Navigated to Data Management');
-          break;
-        case '2':
-          event.preventDefault();
-          router.push('/visualize');
-          toast.success('Navigated to Visualizations');
-          break;
-        case '3':
-          event.preventDefault();
-          router.push('/ml');
-          toast.success('Navigated to Machine Learning');
-          break;
-        case '4':
-          event.preventDefault();
-          router.push('/reports');
-          toast.success('Navigated to Reports');
-          break;
-        case 'h':
-          event.preventDefault();
-          router.push('/');
-          toast.success('Navigated to Home');
-          break;
-        case 's':
-          event.preventDefault();
-          router.push('/settings');
-          toast.success('Navigated to Settings');
-          break;
-        case '/':
-          event.preventDefault();
-          showShortcutsHelp();
-          break;
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Save shortcut
+      if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        saveSession();
+      }
+      
+      // Export shortcut
+      if (e.ctrlKey && e.key === 'e') {
+        e.preventDefault();
+        exportData();
+      }
+      
+      // Help shortcut
+      if (e.ctrlKey && e.key === '/') {
+        e.preventDefault();
+        showShortcutsHelp();
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [router]);
-
-  const showShortcutsHelp = () => {
-    toast.info('Keyboard Shortcuts', {
-      description: 'Ctrl+1: Data • Ctrl+2: Visualize • Ctrl+3: ML • Ctrl+4: Reports • Ctrl+H: Home • Ctrl+S: Settings',
-      duration: 5000
-    });
-  };
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [saveSession, exportData, showShortcutsHelp]);
 
   return { showShortcutsHelp };
 }

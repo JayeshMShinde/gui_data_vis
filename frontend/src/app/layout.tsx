@@ -1,28 +1,40 @@
-import "./globals.css"
-import { ReactNode } from "react"
-import QueryProvider from "@/components/QueryProvider"
-import { ThemeProvider } from "@/contexts/ThemeContext"
-import { SessionProvider } from "@/contexts/SessionContext"
-import { Toaster } from "sonner"
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { ClerkProvider } from '@clerk/nextjs';
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { SessionProvider } from "@/contexts/SessionContext";
+import QueryProvider from "@/components/QueryProvider";
+import AuthToasts from "@/components/AuthToasts";
+import { Toaster } from "sonner";
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: "DataViz Pro - Data Visualization & ML Platform",
+  description: "Complete data science platform for analysis, visualization, and machine learning",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en">
-      <body>
-        <ThemeProvider>
-          <SessionProvider>
-            <QueryProvider>
-              {children}
-              <Toaster 
-                position="top-right" 
-                toastOptions={{
-                  className: 'dark:bg-gray-800 dark:text-white dark:border-gray-700',
-                }}
-              />
-            </QueryProvider>
-          </SessionProvider>
-        </ThemeProvider>
-      </body>
-    </html>
-  )
+    <ClerkProvider>
+      <html lang="en">
+        <body className={inter.className}>
+          <ThemeProvider>
+            <SessionProvider>
+              <QueryProvider>
+                <AuthToasts />
+                {children}
+                <Toaster position="top-right" />
+              </QueryProvider>
+            </SessionProvider>
+          </ThemeProvider>
+        </body>
+      </html>
+    </ClerkProvider>
+  );
 }

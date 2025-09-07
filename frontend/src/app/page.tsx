@@ -17,6 +17,8 @@ import {
 import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 import Tooltip from "@/components/ui/Tooltip";
 import { useState, useEffect } from "react";
+import { useAuth } from '@clerk/nextjs';
+import { redirect } from 'next/navigation';
 
 const features = [
   {
@@ -57,24 +59,32 @@ const stats = [
 ];
 
 export default function HomePage() {
+  const { isSignedIn, isLoaded } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    // Check if user has seen onboarding before
-    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
-    if (!hasSeenOnboarding) {
-      setShowOnboarding(true);
+    if (isLoaded && !isSignedIn) {
+      redirect('/landing');
     }
-  }, []);
+  }, [isLoaded, isSignedIn]);
+
+  useEffect(() => {
+    setMounted(true);
+    if (isSignedIn) {
+      const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+      if (!hasSeenOnboarding) {
+        setShowOnboarding(true);
+      }
+    }
+  }, [isSignedIn]);
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     localStorage.setItem('hasSeenOnboarding', 'true');
   };
 
-  if (!mounted) {
+  if (!mounted || !isLoaded || !isSignedIn) {
     return (
       <DashboardLayout>
         <div className="p-8">

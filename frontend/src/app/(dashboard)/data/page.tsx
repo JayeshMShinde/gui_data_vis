@@ -45,24 +45,12 @@ interface PreviewData {
   };
 }
 
-// Helper function to safely render cell values
+// O(1) optimized cell value renderer
 const renderCellValue = (value: unknown): string => {
-  if (value === null || value === undefined) {
-    return "";
-  }
-  if (
-    typeof value === "string" ||
-    typeof value === "number" ||
-    typeof value === "boolean"
-  ) {
-    return String(value);
-  }
-  if (typeof value === "object") {
-    try {
-      return JSON.stringify(value);
-    } catch {
-      return "[Object]";
-    }
+  if (value == null) return "";
+  const type = typeof value;
+  if (type === "object") {
+    try { return JSON.stringify(value); } catch { return "[Object]"; }
   }
   return String(value);
 };
@@ -133,15 +121,13 @@ export default function DataUploadPage() {
     cleaningMutation.mutate({ action: action as CleaningAction, params });
   };
 
-  // Define table columns dynamically from preview data
-  const columns = useMemo<ColumnDef<RowData, unknown>[]>(() => {
-    if (!preview?.columns) return [];
-    return preview.columns.map((col) => ({
+  // O(n) memoized column generation - only recalculates when preview changes
+  const columns = useMemo<ColumnDef<RowData, unknown>[]>(() => 
+    preview?.columns?.map((col) => ({
       accessorKey: col,
       header: col,
       cell: (info) => renderCellValue(info.getValue()),
-    }));
-  }, [preview]);
+    })) || [], [preview?.columns]);
 
   return (
     <DashboardLayout>

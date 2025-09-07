@@ -70,7 +70,7 @@ export interface SavedSession {
 }
 
 // Report Types
-export type ReportType = 'data_summary' | 'data_quality' | 'statistical_analysis' | 'visualization_recommendations';
+export type ReportType = 'session_activity' | 'data_summary' | 'data_quality' | 'statistical_analysis' | 'visualization_recommendations';
 
 export interface ReportData {
   report_type: string;

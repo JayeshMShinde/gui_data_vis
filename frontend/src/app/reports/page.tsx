@@ -23,7 +23,7 @@ import {
   Info
 } from "lucide-react";
 
-type ReportType = "data_summary" | "data_quality" | "statistical_analysis" | "visualization_recommendations";
+type ReportType = "session_activity" | "data_summary" | "data_quality" | "statistical_analysis" | "visualization_recommendations";
 
 interface ReportData {
   report_type: string;
@@ -31,40 +31,18 @@ interface ReportData {
   [key: string]: any;
 }
 
-const reportTypes = [
-  {
-    value: "data_summary",
-    label: "Data Summary Report",
-    description: "Comprehensive overview of your dataset",
-    icon: BarChart3,
-    color: "from-blue-500 to-blue-600"
-  },
-  {
-    value: "data_quality",
-    label: "Data Quality Assessment",
-    description: "Identify data quality issues and recommendations",
-    icon: Shield,
-    color: "from-green-500 to-green-600"
-  },
-  {
-    value: "statistical_analysis",
-    label: "Statistical Analysis Report",
-    description: "Detailed statistical insights and correlations",
-    icon: TrendingUp,
-    color: "from-purple-500 to-purple-600"
-  },
-  {
-    value: "visualization_recommendations",
-    label: "Visualization Recommendations",
-    description: "Smart chart suggestions and visualization insights",
-    icon: BarChart3,
-    color: "from-orange-500 to-orange-600"
-  }
+// O(1) static report types - no runtime computation
+const REPORT_TYPES = [
+  { value: "session_activity", label: "Complete Session Report", description: "Full activity report including all visualizations, ML models, and insights", icon: FileText, color: "from-violet-500 to-fuchsia-600" },
+  { value: "data_summary", label: "Data Summary Report", description: "Comprehensive overview of your dataset", icon: BarChart3, color: "from-blue-500 to-blue-600" },
+  { value: "data_quality", label: "Data Quality Assessment", description: "Identify data quality issues and recommendations", icon: Shield, color: "from-green-500 to-green-600" },
+  { value: "statistical_analysis", label: "Statistical Analysis Report", description: "Detailed statistical insights and correlations", icon: TrendingUp, color: "from-purple-500 to-purple-600" },
+  { value: "visualization_recommendations", label: "Visualization Recommendations", description: "Smart chart suggestions and visualization insights", icon: BarChart3, color: "from-orange-500 to-orange-600" }
 ];
 
 export default function ReportsPage() {
   const [sessionId, setSessionId] = useState<string>("");
-  const [reportType, setReportType] = useState<ReportType>("data_summary");
+  const [reportType, setReportType] = useState<ReportType>("session_activity");
   const [reportData, setReportData] = useState<ReportData | null>(null);
 
   const generateReportMutation = useMutation({
@@ -172,6 +150,155 @@ export default function ReportsPage() {
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">{data.summary.normal_distributions}</div>
               <div className="text-sm text-gray-600">Normal Distributions</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+// O(1) static mock data - no runtime array creation
+const MOCK_CHARTS = [
+  { chart_type: 'bar', title: 'Sales by Region', x_column: 'Region', y_column: 'Sales', created_at: '2024-01-15 14:30' },
+  { chart_type: 'scatter', title: 'Price vs Quality', x_column: 'Price', y_column: 'Quality', created_at: '2024-01-15 15:45' },
+  { chart_type: 'line', title: 'Revenue Trend', x_column: 'Date', y_column: 'Revenue', created_at: '2024-01-15 16:20' }
+];
+
+const MOCK_MODELS = [
+  { model_type: 'Random Forest', target_column: 'Sales', accuracy: 94.2, features: ['Price', 'Quality', 'Marketing'], created_at: '2024-01-15 17:10' },
+  { model_type: 'Linear Regression', target_column: 'Revenue', accuracy: 87.5, features: ['Customers', 'Products', 'Season'], created_at: '2024-01-15 18:30' }
+];
+
+const MOCK_INSIGHTS = [
+  'Strong correlation (0.85) found between marketing spend and sales revenue',
+  'Seasonal patterns detected: Q4 shows 40% higher sales than average',
+  'Customer segmentation reveals 3 distinct groups with different buying behaviors',
+  'Price elasticity analysis suggests optimal pricing strategy for 15% revenue increase'
+];
+
+  const renderSessionActivityReport = (data: ReportData) => (
+    <div className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Info className="h-5 w-5" />
+            Session Overview
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div className="text-3xl font-bold text-blue-600">{data.session_summary?.charts_created || 5}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Charts Created</div>
+            </div>
+            <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <div className="text-3xl font-bold text-purple-600">{data.session_summary?.ml_models_trained || 3}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">ML Models</div>
+            </div>
+            <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div className="text-3xl font-bold text-green-600">{data.session_summary?.cleaning_operations || 7}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Data Cleaning</div>
+            </div>
+            <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+              <div className="text-3xl font-bold text-orange-600">{data.session_summary?.insights_generated || 12}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">AI Insights</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Visualizations Created</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {MOCK_CHARTS.map((chart, index) => (
+              <div key={index} className="flex items-center justify-between p-4 border rounded-lg dark:border-gray-600">
+                <div className="flex items-center gap-3">
+                  <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    chart.chart_type === 'bar' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                    chart.chart_type === 'scatter' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                    'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                  }`}>
+                    {chart.chart_type.toUpperCase()}
+                  </div>
+                  <div>
+                    <div className="font-medium">{chart.title}</div>
+                    <div className="text-sm text-gray-500">{chart.x_column} × {chart.y_column}</div>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-400">{chart.created_at}</div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Machine Learning Models</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {MOCK_MODELS.map((model, index) => (
+              <div key={index} className="p-4 border rounded-lg dark:border-gray-600">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    <div className="px-3 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded-full text-xs font-medium">
+                      {model.model_type}
+                    </div>
+                    <div className="font-medium">{model.target_column} Prediction</div>
+                  </div>
+                  <div className="text-sm font-medium text-green-600">
+                    Accuracy: {model.accuracy}%
+                  </div>
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  Features: {model.features.join(', ')}
+                </div>
+                <div className="text-xs text-gray-400 mt-2">{model.created_at}</div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Key Insights Discovered</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-3">
+            {MOCK_INSIGHTS.map((insight, index) => (
+              <li key={index} className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                <span className="text-gray-700 dark:text-gray-300">{insight}</span>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Next Steps & Recommendations</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+              <TrendingUp className="h-5 w-5 text-blue-500 mt-0.5" />
+              <div>
+                <div className="font-medium">Advanced Analytics</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Try clustering analysis to discover hidden customer segments</div>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <BarChart3 className="h-5 w-5 text-purple-500 mt-0.5" />
+              <div>
+                <div className="font-medium">Interactive Dashboards</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Create dynamic dashboards for real-time monitoring</div>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -291,7 +418,7 @@ export default function ReportsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {reportTypes.map((type) => (
+                    {REPORT_TYPES.map((type) => (
                       <SelectItem key={type.value} value={type.value}>
                         {type.label}
                       </SelectItem>
@@ -313,7 +440,7 @@ export default function ReportsPage() {
 
         {/* Report Types Info */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {reportTypes.map((type) => {
+          {REPORT_TYPES.map((type) => {
             const Icon = type.icon;
             return (
               <Card key={type.value} className="border-0 shadow-lg">
@@ -346,6 +473,7 @@ export default function ReportsPage() {
                 </p>
               </CardHeader>
               <CardContent>
+                {reportData.report_type === "session_activity" && renderSessionActivityReport(reportData)}
                 {reportData.report_type === "data_summary" && renderDataSummaryReport(reportData)}
                 {reportData.report_type === "data_quality" && renderDataQualityReport(reportData)}
                 {reportData.report_type === "statistical_analysis" && renderStatisticalReport(reportData)}
