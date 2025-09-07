@@ -20,7 +20,7 @@ api.interceptors.response.use(
       message = 'Cannot connect to server. Please ensure the backend is running on http://localhost:8000';
     } else if (error.response?.status === 404) {
       message = 'API endpoint not found';
-    } else if (error.response?.status >= 500) {
+    } else if (error.response?.status && error.response.status >= 500) {
       message = 'Server error occurred';
     } else {
       message = (error.response?.data as any)?.detail || error.message || 'An error occurred';
