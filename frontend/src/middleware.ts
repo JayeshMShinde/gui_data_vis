@@ -3,13 +3,15 @@ import { NextResponse } from 'next/server';
 
 const isPublicRoute = createRouteMatcher(['/landing', '/']);
 
-export default clerkMiddleware((auth, req) => {
-  if (!isPublicRoute(req)) {
-    auth().protect();
+export default clerkMiddleware(async (auth, req) => {
+  const { userId } = await auth();
+  
+  if (!isPublicRoute(req) && !userId) {
+    return NextResponse.redirect(new URL('/landing', req.url));
   }
   
   // Redirect unauthenticated users from root to landing
-  if (req.nextUrl.pathname === '/' && !auth().userId) {
+  if (req.nextUrl.pathname === '/' && !userId) {
     return NextResponse.redirect(new URL('/landing', req.url));
   }
 });
