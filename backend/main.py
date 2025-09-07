@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
 from routers import data, visualization, ml
+from datetime import datetime
 
 # Initialize database
 try:
@@ -31,6 +33,10 @@ app.add_middleware(
 app.include_router(data.router, prefix="/api/data", tags=["Data"])
 app.include_router(visualization.router, prefix="/api/charts", tags=["Visualization"])
 app.include_router(ml.router, prefix="/api/ml", tags=["Machine Learning"])
+
+@app.get("/api/health")
+def health_check():
+    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
 # Import and include reports router
 from routers import reports

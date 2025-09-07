@@ -10,6 +10,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 import { cleanData } from "@/lib/api";
 import { useSession } from "@/contexts/SessionContext";
+import { ClipboardUtil } from "@/lib/utils/clipboard";
+import ServerStatus from "@/components/ui/ServerStatus";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { BarChart3, Brain, Upload, FileText, Copy } from "lucide-react";
@@ -151,6 +153,8 @@ export default function DataUploadPage() {
           </h1>
           <p className="text-lg text-gray-600">Upload, clean, and prepare your datasets for analysis</p>
         </div>
+        
+        <ServerStatus />
       
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Upload Section */}
@@ -188,22 +192,12 @@ export default function DataUploadPage() {
                       size="sm" 
                       variant="ghost" 
                       onClick={async () => {
-                        try {
-                          if (navigator.clipboard && navigator.clipboard.writeText) {
-                            await navigator.clipboard.writeText(preview.session_id);
-                          } else {
-                            // Fallback for older browsers
-                            const textArea = document.createElement('textarea');
-                            textArea.value = preview.session_id;
-                            document.body.appendChild(textArea);
-                            textArea.select();
-                            document.execCommand('copy');
-                            document.body.removeChild(textArea);
-                          }
+                        const success = await ClipboardUtil.copyToClipboard(preview.session_id);
+                        if (success) {
                           toast.success("Session ID copied!", {
                             description: "You can use this ID to generate reports later"
                           });
-                        } catch (error) {
+                        } else {
                           toast.error("Failed to copy session ID");
                         }
                       }}

@@ -3,6 +3,9 @@ from pydantic import BaseModel
 from typing import Optional, List, Literal
 from services.data_processing import data_processor
 from services.ml_service import ml_service
+from utils.validators import MLValidator
+from utils.error_handlers import ErrorHandler, safe_execute, log_api_call
+import time
 
 router = APIRouter()
 
@@ -26,26 +29,45 @@ class PCARequest(BaseModel):
 
 @router.post("/train")
 async def train_model(request: SupervisedMLRequest):
+    start_time = time.time()
+    log_api_call("/train", "POST", {
+        "model_type": request.model_type,
+        "target_column": request.target_column,
+        "feature_count": len(request.feature_columns)
+    })
+    
     try:
         df = data_processor.get_dataframe(request.session_id)
         if df is None:
-            raise HTTPException(status_code=404, detail="Session not found")
+            raise ErrorHandler.handle_not_found_error("Session", request.session_id)
         
-        # Validate columns exist
-        missing_cols = [col for col in request.feature_columns + [request.target_column] 
-                       if col not in df.columns]
-        if missing_cols:
-            raise HTTPException(status_code=400, detail=f"Columns not found: {missing_cols}")
+        # Validate ML request
+        is_valid, error_msg = MLValidator.validate_ml_request(
+            df, request.target_column, request.feature_columns
+        )
+        if not is_valid:
+            raise ErrorHandler.handle_validation_error(error_msg)
         
-        result = ml_service.train_supervised_model(
+        # Train model
+        result = safe_execute(
+            ml_service.train_supervised_model,
             df, request.model_type, request.target_column, 
             request.feature_columns, request.test_size
         )
         
+        duration = time.time() - start_time
+        from utils.error_handlers import log_performance
+        log_performance("ml_training", duration, {
+            "model_type": request.model_type,
+            "data_shape": df.shape
+        })
+        
         return result
-    
+        
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise ErrorHandler.handle_ml_error(request.model_type, e)
 
 @router.post("/cluster")
 async def train_clustering(request: ClusteringRequest):
