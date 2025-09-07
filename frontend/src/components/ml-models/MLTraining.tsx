@@ -29,6 +29,7 @@ interface MLResult {
   labels?: number[];
   explained_variance_ratio?: number[];
   is_classification?: boolean;
+  n_clusters?: number;
 }
 
 export default function MLTraining({ sessionId, columns, numericColumns }: MLTrainingProps) {
