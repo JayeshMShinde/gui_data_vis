@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { generateReport } from "@/lib/api";
-import ReportExporter from "@/components/reports/ReportExporter";
+import ReportExporter from "@/components/report_s/ReportExporter";
 import { 
   FileText, 
   Download, 
