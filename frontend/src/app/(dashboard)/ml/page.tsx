@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import MLTraining from "@/components/ml-models/MLTraining";
@@ -20,7 +20,7 @@ interface DataInfo {
   categorical_columns: string[];
 }
 
-export default function MLPage() {
+function MLPageContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session");
   const [dataInfo, setDataInfo] = useState<DataInfo | null>(null);
@@ -229,5 +229,13 @@ export default function MLPage() {
         </div>
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function MLPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+      <MLPageContent />
+    </Suspense>
   );
 }

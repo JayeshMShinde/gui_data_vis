@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import MobileLayout from "@/components/mobile/MobileLayout";
@@ -25,7 +25,7 @@ interface DataInfo {
   categorical_columns: string[];
 }
 
-export default function VisualizePage() {
+function VisualizePageContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session");
   const [dataInfo, setDataInfo] = useState<DataInfo | null>(null);
@@ -282,5 +282,13 @@ export default function VisualizePage() {
         </DashboardLayout>
       </div>
     </>
+  );
+}
+
+export default function VisualizePage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+      <VisualizePageContent />
+    </Suspense>
   );
 }
