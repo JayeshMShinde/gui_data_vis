@@ -63,11 +63,7 @@ export default function HomePage() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      redirect('/landing');
-    }
-  }, [isLoaded, isSignedIn]);
+  // Redirect handled by middleware
 
   useEffect(() => {
     setMounted(true);
@@ -84,7 +80,7 @@ export default function HomePage() {
     localStorage.setItem('hasSeenOnboarding', 'true');
   };
 
-  if (!mounted || !isLoaded || !isSignedIn) {
+  if (!mounted || !isLoaded) {
     return (
       <DashboardLayout>
         <div className="p-8">
@@ -93,6 +89,20 @@ export default function HomePage() {
           </div>
         </div>
       </DashboardLayout>
+    );
+  }
+  
+  if (!isSignedIn) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold mb-4">Welcome to DataViz Pro</h1>
+          <p className="text-lg mb-6">Please sign in to continue</p>
+          <Link href="/landing">
+            <Button>Get Started</Button>
+          </Link>
+        </div>
+      </div>
     );
   }
 
