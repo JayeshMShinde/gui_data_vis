@@ -283,7 +283,7 @@ function generateMockReport({ report_type, session_id }: { report_type: string; 
     report_type,
     session_id,
     generated_at: new Date().toISOString(),
-    ...MOCK_REPORTS[report_type] || {}
+    ...MOCK_REPORTS[report_type as keyof typeof MOCK_REPORTS] || {}
   };
 }
 
