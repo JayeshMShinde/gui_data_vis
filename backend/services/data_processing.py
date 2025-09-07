@@ -70,9 +70,9 @@ class DataProcessor:
             elif strategy == "zero":
                 cleaned_df[col] = cleaned_df[col].fillna(0)
             elif strategy == "forward_fill":
-                cleaned_df[col] = cleaned_df[col].fillna(method='ffill')
+                cleaned_df[col] = cleaned_df[col].ffill()
             elif strategy == "backward_fill":
-                cleaned_df[col] = cleaned_df[col].fillna(method='bfill')
+                cleaned_df[col] = cleaned_df[col].bfill()
             elif strategy == "drop":
                 cleaned_df = cleaned_df.dropna(subset=[col])
         

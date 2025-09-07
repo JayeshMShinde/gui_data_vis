@@ -129,8 +129,8 @@ export default function DataUploadPage() {
     }
   };
 
-  const handleCleaningAction = (action: CleaningAction, params: CleaningParams) => {
-    cleaningMutation.mutate({ action, params });
+  const handleCleaningAction = (action: string, params: any) => {
+    cleaningMutation.mutate({ action: action as CleaningAction, params });
   };
 
   // Define table columns dynamically from preview data
@@ -163,6 +163,7 @@ export default function DataUploadPage() {
           
           {preview && (
             <div className="mt-6">
+
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold">Data Preview</h3>
                 <div className="flex items-center gap-4">
@@ -214,17 +215,26 @@ export default function DataUploadPage() {
           )}
         </div>
         
-        {/* Cleaning Controls Sidebar */}
+        {/* Enhanced Sidebar */}
         {preview && (
           <div className="lg:col-span-1">
-            <div className="sticky top-4">
-              <h3 className="font-semibold mb-4">Data Cleaning</h3>
-              <DataCleaningControls
-                sessionId={preview.session_id}
-                dataInfo={preview.data_info}
-                onCleaningAction={handleCleaningAction}
-                isLoading={cleaningMutation.isPending}
-              />
+            <div className="sticky top-4 space-y-6">
+              {/* One-Click Presets - Coming Soon */}
+              <div className="p-4 border rounded-lg">
+                <h4 className="font-semibold mb-2">Quick Presets</h4>
+                <p className="text-sm text-gray-600">One-click cleaning presets coming soon!</p>
+              </div>
+              
+              {/* Manual Cleaning Controls */}
+              <div>
+                <h3 className="font-semibold mb-4">Manual Cleaning</h3>
+                <DataCleaningControls
+                  sessionId={preview.session_id}
+                  dataInfo={preview.data_info}
+                  onCleaningAction={handleCleaningAction}
+                  isLoading={cleaningMutation.isPending}
+                />
+              </div>
             </div>
           </div>
         )}

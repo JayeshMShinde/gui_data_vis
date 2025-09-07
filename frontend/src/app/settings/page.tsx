@@ -112,15 +112,11 @@ export default function SettingsPage() {
                   
                   <button
                     onClick={() => handleThemeChange("system")}
-                    className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                      tempTheme === "system"
-                        ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                        : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
-                    }`}
+                    className="p-4 rounded-lg border-2 transition-all duration-200 border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
                   >
                     <Monitor className="h-6 w-6 mx-auto mb-2 text-gray-500" />
                     <div className="text-sm font-medium text-gray-900 dark:text-white">System</div>
-                    {tempTheme === "system" && <Check className="h-4 w-4 text-blue-500 mx-auto mt-1" />}
+
                   </button>
                 </div>
               </div>

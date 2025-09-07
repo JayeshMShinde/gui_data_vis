@@ -14,6 +14,9 @@ import {
   Activity,
   Zap
 } from "lucide-react";
+import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
+import Tooltip from "@/components/ui/Tooltip";
+import { useState, useEffect } from "react";
 
 const features = [
   {
@@ -54,6 +57,45 @@ const stats = [
 ];
 
 export default function HomePage() {
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // Check if user has seen onboarding before
+    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+    if (!hasSeenOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    localStorage.setItem('hasSeenOnboarding', 'true');
+  };
+
+  if (!mounted) {
+    return (
+      <DashboardLayout>
+        <div className="p-8">
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (showOnboarding) {
+    return (
+      <DashboardLayout>
+        <div className="p-8">
+          <OnboardingWizard onComplete={handleOnboardingComplete} />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="p-8">
@@ -107,12 +149,14 @@ export default function HomePage() {
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <Link href={feature.href}>
-                    <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0">
-                      Get Started
-                      <Zap className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
+                  <Tooltip content={`Navigate to ${feature.title} (Ctrl+${features.indexOf(feature) + 1})`}>
+                    <Link href={feature.href}>
+                      <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0">
+                        Get Started
+                        <Zap className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </Tooltip>
                 </CardContent>
               </Card>
             );

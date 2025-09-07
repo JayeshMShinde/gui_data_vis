@@ -1,0 +1,98 @@
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.Python
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+.ENV/
+env.bak/
+venv.bak/
+
+# Testing
+.coverage*
+htmlcov/
+.tox/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Documentation
+docs/_build/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+sessions.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Application specific
+uploads/
+temp/
+static/uploads/
+media/
+
+# Generated files
+reports/
+*.pdf
+*.xlsx
+*.csv
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# Model files
+models/
+*.pkl
+*.joblib
+*.h5
+*.model
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Local configuration
+local_settings.py
+config.local.json
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini

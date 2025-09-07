@@ -96,7 +96,8 @@ async def clean_data(request: CleanRequest):
             raise ErrorHandler.handle_validation_error("Invalid session ID format")
         
         # Check if session exists
-        if not data_processor.get_dataframe(request.session_id):
+        df = data_processor.get_dataframe(request.session_id)
+        if df is None:
             raise ErrorHandler.handle_not_found_error("Session", request.session_id)
         
         # Execute cleaning operation

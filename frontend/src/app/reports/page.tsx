@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { generateReport } from "@/lib/api";
+import ReportExporter from "@/components/reports/ReportExporter";
 import { 
   FileText, 
   Download, 
@@ -332,34 +333,26 @@ export default function ReportsPage() {
           })}
         </div>
 
-        {/* Generated Report */}
+        {/* Report Exporter */}
         {reportData && (
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
+          <div className="space-y-6">
+            <ReportExporter sessionId={sessionId} reportData={reportData} />
+            
+            <Card>
+              <CardHeader>
                 <CardTitle>Generated Report</CardTitle>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    Export PDF
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    Export JSON
-                  </Button>
-                </div>
-              </div>
-              <p className="text-sm text-gray-600">
-                Generated on {new Date(reportData.generated_at).toLocaleString()}
-              </p>
-            </CardHeader>
-            <CardContent>
-              {reportData.report_type === "data_summary" && renderDataSummaryReport(reportData)}
-              {reportData.report_type === "data_quality" && renderDataQualityReport(reportData)}
-              {reportData.report_type === "statistical_analysis" && renderStatisticalReport(reportData)}
-              {reportData.report_type === "visualization_recommendations" && renderVisualizationReport(reportData)}
-            </CardContent>
-          </Card>
+                <p className="text-sm text-gray-600">
+                  Generated on {new Date(reportData.generated_at).toLocaleString()}
+                </p>
+              </CardHeader>
+              <CardContent>
+                {reportData.report_type === "data_summary" && renderDataSummaryReport(reportData)}
+                {reportData.report_type === "data_quality" && renderDataQualityReport(reportData)}
+                {reportData.report_type === "statistical_analysis" && renderStatisticalReport(reportData)}
+                {reportData.report_type === "visualization_recommendations" && renderVisualizationReport(reportData)}
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
     </DashboardLayout>
