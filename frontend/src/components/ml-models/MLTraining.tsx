@@ -103,7 +103,7 @@ export default function MLTraining({ sessionId, columns, numericColumns }: MLTra
       return;
     }
 
-    trainModelMutation.mutate({});
+    trainModelMutation.mutate();
   };
 
   const getModelExplanation = () => {
