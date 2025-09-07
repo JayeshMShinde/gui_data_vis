@@ -7,7 +7,7 @@ import MLTraining from "@/components/ml-models/MLTraining";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft, Brain, FileText, Copy } from "lucide-react";
+import { Brain, FileText, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { getDataInfo } from "@/lib/api";
 

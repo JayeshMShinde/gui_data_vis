@@ -278,7 +278,7 @@ const MOCK_REPORTS = {
   }
 };
 
-function generateMockReport({ report_type, session_id }) {
+function generateMockReport({ report_type, session_id }: { report_type: string; session_id: string }) {
   return {
     report_type,
     session_id,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import FileUpload from "@/components/ui/FileUpload";
 import DataTable from "@/components/data-table/DataTable";
@@ -58,7 +58,6 @@ const renderCellValue = (value: unknown): string => {
 export default function DataUploadPage() {
   const [preview, setPreview] = useState<PreviewData | null>(null);
   const { setCurrentSessionId } = useSession();
-  const queryClient = useQueryClient();
 
   // Mutation for data cleaning operations
   const cleaningMutation = useMutation({
