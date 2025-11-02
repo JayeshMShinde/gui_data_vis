@@ -77,54 +77,68 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="py-24 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="animate-in slide-in-from-bottom-8 duration-700">
-            <div className="inline-flex items-center px-4 py-2 bg-indigo-50 border border-indigo-200 rounded-full mb-6">
-              <Sparkles className="h-4 w-4 text-indigo-600 mr-2 animate-pulse" />
-              <span className="text-indigo-700 text-sm font-medium">AI-Powered Analytics</span>
+      <section className="py-32 px-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-purple-50/30 to-pink-50/50 -z-10"></div>
+        <div className="absolute top-20 left-1/4 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl -z-10"></div>
+        <div className="absolute bottom-20 right-1/4 w-80 h-80 bg-gradient-to-br from-purple-400/20 to-pink-600/20 rounded-full blur-3xl -z-10"></div>
+        
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="animate-fade-in">
+            <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200/60 rounded-full mb-8 shadow-soft">
+              <Sparkles className="h-5 w-5 text-blue-600 mr-3 animate-pulse" />
+              <span className="text-blue-700 font-semibold tracking-wide">Next-Gen AI Analytics Platform</span>
             </div>
           </div>
           
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-gray-900 animate-in slide-in-from-bottom-6 duration-700 delay-200">
+          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold mb-8 text-gray-900 animate-slide-up tracking-tight">
             Transform Data Into
             <br />
-            <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Beautiful Insights</span>
+            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+              Beautiful Insights
+            </span>
           </h1>
           
-          <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto animate-in slide-in-from-bottom-4 duration-700 delay-400">
+          <p className="text-2xl text-gray-600 mb-12 max-w-3xl mx-auto animate-slide-up leading-relaxed" style={{ animationDelay: '200ms' }}>
             The premium no-code platform for data visualization and machine learning. 
-            Create stunning charts and discover insights in minutes.
+            Create stunning charts and discover insights in minutes, not hours.
           </p>
           
-          <div className="flex gap-4 justify-center mb-12 animate-in slide-in-from-bottom-4 duration-700 delay-600">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16 animate-slide-up" style={{ animationDelay: '400ms' }}>
             <SignUpButton mode="modal">
-              <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <Button 
+                size="lg" 
+                className="gradient-primary text-white px-10 py-4 text-lg shadow-strong hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                <Sparkles className="mr-3 h-5 w-5" />
                 Start Free Trial
               </Button>
             </SignUpButton>
-            <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-3 transition-all duration-300 hover:scale-105">
-              <Play className="mr-2 h-4 w-4" />
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 px-10 py-4 text-lg transition-all duration-300 hover:scale-105 shadow-soft hover:shadow-medium"
+            >
+              <Play className="mr-3 h-5 w-5" />
               View Demo
             </Button>
           </div>
           
-          <div className="flex items-center justify-center gap-8 text-sm text-gray-500 animate-in slide-in-from-bottom-4 duration-700 delay-800">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-12 text-lg text-gray-500 animate-slide-up" style={{ animationDelay: '600ms' }}>
             <div className="flex items-center">
-              <div className="flex -space-x-2 mr-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-400 to-purple-400 rounded-full border-2 border-white animate-pulse"></div>
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full border-2 border-white animate-pulse" style={{animationDelay: '0.5s'}}></div>
-                <div className="w-8 h-8 bg-gradient-to-br from-pink-400 to-rose-400 rounded-full border-2 border-white animate-pulse" style={{animationDelay: '1s'}}></div>
+              <div className="flex -space-x-3 mr-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full border-4 border-white shadow-medium animate-pulse"></div>
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full border-4 border-white shadow-medium animate-pulse" style={{animationDelay: '0.5s'}}></div>
+                <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-rose-400 rounded-full border-4 border-white shadow-medium animate-pulse" style={{animationDelay: '1s'}}></div>
               </div>
-              <span>10,000+ users</span>
+              <span className="font-semibold">10,000+ happy users</span>
             </div>
             <div className="flex items-center">
-              <div className="flex mr-2">
+              <div className="flex mr-3">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                  <Star key={i} className="h-6 w-6 text-yellow-400 fill-current" />
                 ))}
               </div>
-              <span>4.9/5 rating</span>
+              <span className="font-semibold">4.9/5 rating</span>
             </div>
           </div>
         </div>

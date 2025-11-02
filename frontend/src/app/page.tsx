@@ -18,7 +18,6 @@ import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 import Tooltip from "@/components/ui/Tooltip";
 import { useState, useEffect } from "react";
 import { useAuth } from '@clerk/nextjs';
-import { redirect } from 'next/navigation';
 
 const features = [
   {
@@ -118,31 +117,44 @@ export default function HomePage() {
 
   return (
     <DashboardLayout>
-      <div className="p-8">
+      <div className="section-padding py-8 min-h-full animate-fade-in">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome to DataViz Pro
-          </h1>
-          <p className="text-lg text-gray-600">
-            Your complete data science platform for analysis, visualization, and machine learning
-          </p>
+        <div className="mb-12 text-center lg:text-left">
+          <div className="mb-6">
+            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">
+              Welcome to{" "}
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                DataViz Pro
+              </span>
+            </h1>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl">
+              Your complete AI-powered data science platform for analysis, visualization, and machine learning
+            </p>
+          </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat) => {
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <Card key={stat.name} className="border-0 shadow-lg bg-white">
-                <CardContent className="p-6">
+              <Card 
+                key={stat.name} 
+                className="border-0 shadow-soft bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:shadow-medium transition-all duration-300 animate-slide-up"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <CardContent className="card-padding">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">{stat.name}</p>
-                      <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-1">
+                        {stat.name}
+                      </p>
+                      <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                        {stat.value}
+                      </p>
                     </div>
-                    <div className="h-12 w-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                      <Icon className="h-6 w-6 text-white" />
+                    <div className="h-14 w-14 bg-gradient-to-br from-blue-500 via-purple-600 to-fuchsia-600 rounded-xl flex items-center justify-center shadow-medium">
+                      <Icon className="h-7 w-7 text-white" />
                     </div>
                   </div>
                 </CardContent>
@@ -152,28 +164,36 @@ export default function HomePage() {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {features.map((feature) => {
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
-              <Card key={feature.title} className="border-0 shadow-lg bg-white hover:shadow-xl transition-all duration-300 group">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center gap-4">
-                    <div className={`h-12 w-12 bg-gradient-to-br ${feature.color} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                      <Icon className="h-6 w-6 text-white" />
+              <Card 
+                key={feature.title} 
+                className="border-0 shadow-soft bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm hover:shadow-strong transition-all duration-300 group animate-scale-in"
+                style={{ animationDelay: `${index * 150}ms` }}
+              >
+                <CardHeader className="card-padding pb-4">
+                  <div className="flex items-start gap-4">
+                    <div className={`h-14 w-14 bg-gradient-to-br ${feature.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-medium`}>
+                      <Icon className="h-7 w-7 text-white" />
                     </div>
-                    <div>
-                      <CardTitle className="text-xl text-gray-900">{feature.title}</CardTitle>
-                      <p className="text-gray-600 mt-1">{feature.description}</p>
+                    <div className="flex-1">
+                      <CardTitle className="text-xl text-gray-900 dark:text-white mb-2 tracking-tight">
+                        {feature.title}
+                      </CardTitle>
+                      <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                        {feature.description}
+                      </p>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0">
+                <CardContent className="card-padding pt-0">
                   <Tooltip content={`Navigate to ${feature.title} (Ctrl+${features.indexOf(feature) + 1})`}>
                     <Link href={feature.href}>
-                      <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0">
+                      <Button className="w-full gradient-primary hover:opacity-90 text-white border-0 shadow-medium hover:shadow-strong transition-all duration-300 py-3 text-base font-semibold">
                         Get Started
-                        <Zap className="ml-2 h-4 w-4" />
+                        <Zap className="ml-2 h-5 w-5" />
                       </Button>
                     </Link>
                   </Tooltip>
@@ -184,36 +204,39 @@ export default function HomePage() {
         </div>
 
         {/* Quick Start */}
-        <Card className="border-0 shadow-lg bg-gradient-to-r from-blue-50 to-purple-50">
-          <CardHeader>
-            <CardTitle className="text-xl text-gray-900">Quick Start Guide</CardTitle>
+        <Card className="border-0 shadow-medium bg-gradient-to-br from-blue-50 via-purple-50/80 to-fuchsia-50/60 dark:from-gray-800/50 dark:via-gray-800/40 dark:to-gray-700/40 backdrop-blur-sm">
+          <CardHeader className="card-padding pb-4">
+            <CardTitle className="text-2xl text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
+              <div className="h-8 w-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <Zap className="h-5 w-5 text-white" />
+              </div>
+              Quick Start Guide
+            </CardTitle>
+            <p className="text-gray-600 dark:text-gray-300">
+              Get up and running with DataViz Pro in just 4 simple steps
+            </p>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="h-10 w-10 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <span className="text-white font-bold">1</span>
+          <CardContent className="card-padding pt-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { step: 1, title: "Upload Data", color: "from-blue-500 to-blue-600" },
+                { step: 2, title: "Clean & Process", color: "from-emerald-500 to-emerald-600" },
+                { step: 3, title: "Visualize & Analyze", color: "from-purple-500 to-purple-600" },
+                { step: 4, title: "Generate Reports", color: "from-orange-500 to-orange-600" }
+              ].map((item, index) => (
+                <div 
+                  key={item.step} 
+                  className="text-center group animate-slide-up"
+                  style={{ animationDelay: `${600 + index * 100}ms` }}
+                >
+                  <div className={`h-12 w-12 bg-gradient-to-br ${item.color} rounded-xl flex items-center justify-center mx-auto mb-3 shadow-medium group-hover:scale-110 transition-transform duration-300`}>
+                    <span className="text-white font-bold text-lg">{item.step}</span>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    {item.title}
+                  </p>
                 </div>
-                <p className="text-sm font-medium">Upload Data</p>
-              </div>
-              <div className="text-center">
-                <div className="h-10 w-10 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <span className="text-white font-bold">2</span>
-                </div>
-                <p className="text-sm font-medium">Clean & Process</p>
-              </div>
-              <div className="text-center">
-                <div className="h-10 w-10 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <span className="text-white font-bold">3</span>
-                </div>
-                <p className="text-sm font-medium">Visualize & Analyze</p>
-              </div>
-              <div className="text-center">
-                <div className="h-10 w-10 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <span className="text-white font-bold">4</span>
-                </div>
-                <p className="text-sm font-medium">Generate Reports</p>
-              </div>
+              ))}
             </div>
           </CardContent>
         </Card>
